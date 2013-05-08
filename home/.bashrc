@@ -26,4 +26,5 @@ if [ -f $HOME/.comun/bashrc-arch.conf ]; then
     source $HOME/.comun/bashrc-arch.conf
 fi
 
+##
 alias homeshick="$HOME/.homesick/repos/homeshick/home/.homeshick"
