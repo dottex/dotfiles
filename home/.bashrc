@@ -14,16 +14,16 @@ fi
 
 export LANG="en_US.UTF-8"
 
-if [ -f $HOME/.jona/bashrc-functions.conf ]; then
-    source $HOME/.jona/bashrc-functions.conf
+if [ -f $HOME/.comun/bashrc-functions.conf ]; then
+    source $HOME/.comun/bashrc-functions.conf
 fi
 
-if [ -f $HOME/.jona/bashrc-jona.conf ]; then
-    source $HOME/.jona/bashrc-jona.conf
+if [ -f $HOME/.comun/bashrc-comun.conf ]; then
+    source $HOME/.comun/bashrc-comun.conf
 fi
 
-if [ -f $HOME/.jona/bashrc-arch.conf ]; then
-    source $HOME/.jona/bashrc-arch.conf
+if [ -f $HOME/.comun/bashrc-arch.conf ]; then
+    source $HOME/.comun/bashrc-arch.conf
 fi
 
 alias homeshick="$HOME/.homesick/repos/homeshick/home/.homeshick"
