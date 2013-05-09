@@ -12,7 +12,6 @@ if [ -f /etc/bashrc ]; then
     source /etc/bashrc
 fi
 
-export LANG="en_US.UTF-8"
 
 if [ -f $HOME/.comun/bashrc-functions.conf ]; then
     source $HOME/.comun/bashrc-functions.conf
