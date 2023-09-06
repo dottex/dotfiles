@@ -43,6 +43,6 @@ taskd.certificate=~/.config/task/keys/private.certificate.pem
 taskd.key=~/.config/task/keys/private.key.pem
 taskd.ca=~/.config/task/keys/ca.cert.pem
 taskd.server=inthe.am:53589
-taskd.credentials=inthe_am/
+#taskd.credentials=Replace HERE!
 taskd.trust=strict
 
