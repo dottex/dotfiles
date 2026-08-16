@@ -7,3 +7,4 @@
 # Logs & temp files
 *.log
 scratch/
+.todo
