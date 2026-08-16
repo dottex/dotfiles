@@ -1,0 +1,9 @@
+# Temporary & swap files
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs & temp files
+*.log
+scratch/

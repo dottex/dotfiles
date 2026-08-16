@@ -1,0 +1,29 @@
+#!/bin/bash
+# ============================================================================
+# .customize_environment - Google Cloud Shell Customization Script
+# Runs as root on every Cloud Shell container startup.
+# ============================================================================
+
+set -e
+
+# Identify the Cloud Shell user (UID 1000)
+USER_NAME=$(getent passwd | awk -F: '$3 == 1000 {print $1}')
+USER_HOME=$(getent passwd | awk -F: '$3 == 1000 {print $6}')
+
+if [ -z "$USER_NAME" ]; then
+    USER_NAME=$(whoami)
+    USER_HOME=$HOME
+fi
+
+# 1. Suppress Cloud Shell apt-get warning (Persistent)
+mkdir -p "$USER_HOME/.cloudshell"
+touch "$USER_HOME/.cloudshell/no-apt-get-warning"
+chown -R "$USER_NAME:$USER_NAME" "$USER_HOME/.cloudshell" 2>/dev/null || true
+
+# 2. Locate and execute install.sh
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/install.sh" ]; then
+    bash "$SCRIPT_DIR/install.sh"
+elif [ -f "$USER_HOME/dotfiles/install.sh" ]; then
+    bash "$USER_HOME/dotfiles/install.sh"
+fi
