@@ -1,0 +1,52 @@
+name: Dotfiles Environment Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-22.04]
+
+    steps:
+      - name: Checkout dotfiles
+        uses: actions/checkout@v4
+        with:
+          path: dotfiles
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq timewarrior fzf vim git curl wget unzip nodejs npm
+
+      - name: Run install.sh
+        run: bash dotfiles/install.sh
+        env:
+          HOME: /home/runner
+          USER: runner
+
+      - name: Reload PATH
+        run: echo "$HOME/.local/bin:$HOME/.npm-global/bin" >> $GITHUB_PATH
+
+      - name: Run automated test suite
+        run: |
+          chmod +x dotfiles/tests/run_tests.sh dotfiles/tests/test_helpers.sh dotfiles/status.sh
+          dotfiles/tests/run_tests.sh
+
+      - name: Run status report (full)
+        run: |
+          dotfiles/status.sh || true
+
+      - name: Run status report (JSON)
+        run: |
+          dotfiles/status.sh --json
+
+      - name: Run status report (summary)
+        run: |
+          dotfiles/status.sh --summary

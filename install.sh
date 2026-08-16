@@ -86,6 +86,7 @@ log_info "Checking system packages..."
 
 REQUIRED_PACKAGES=()
 command -v timew &>/dev/null || REQUIRED_PACKAGES+=("timewarrior")
+command -v fzf &>/dev/null   || REQUIRED_PACKAGES+=("fzf")
 command -v git &>/dev/null   || REQUIRED_PACKAGES+=("git")
 command -v curl &>/dev/null  || REQUIRED_PACKAGES+=("curl")
 command -v wget &>/dev/null  || REQUIRED_PACKAGES+=("wget")
@@ -194,6 +195,33 @@ else
     log_info "ghq is already installed."
 fi
 
+# Fallback fzf binary installation if not available via package manager
+if [ ! -f "$TARGET_HOME/.local/bin/fzf" ] && ! command -v fzf &>/dev/null; then
+    log_info "Installing fzf binary into $TARGET_HOME/.local/bin..."
+    ARCH=$(uname -m)
+    case "$ARCH" in
+        x86_64)  FZF_ARCH="linux_amd64" ;;
+        aarch64|arm64) FZF_ARCH="linux_arm64" ;;
+        *) FZF_ARCH="linux_amd64" ;;
+    esac
+
+    FZF_URL=$(curl -s "https://api.github.com/repos/junegunn/fzf/releases/latest" 2>/dev/null | grep "browser_download_url.*${FZF_ARCH}.tar.gz" | cut -d '"' -f 4 | head -n 1 || true)
+    if [ -z "$FZF_URL" ]; then
+        FZF_URL="https://github.com/junegunn/fzf/releases/download/v0.58.0/fzf-0.58.0-${FZF_ARCH}.tar.gz"
+    fi
+
+    TMP_DIR=$(mktemp -d)
+    if curl -fsSL "$FZF_URL" -o "$TMP_DIR/fzf.tar.gz"; then
+        tar -xzf "$TMP_DIR/fzf.tar.gz" -C "$TMP_DIR"
+        mv "$TMP_DIR/fzf" "$TARGET_HOME/.local/bin/fzf"
+        chmod +x "$TARGET_HOME/.local/bin/fzf"
+        log_success "fzf binary installed."
+    else
+        log_warn "Failed to download fzf binary."
+    fi
+    rm -rf "$TMP_DIR"
+fi
+
 # ----------------------------------------------------------------------------
 # 6. Vim Plugins (Native Vim 8+ Packages)
 # ----------------------------------------------------------------------------
@@ -208,6 +236,8 @@ PLUGINS=(
     "https://github.com/tpope/vim-repeat.git"
     "https://github.com/vimwiki/vimwiki.git"
     "https://github.com/wakatime/vim-wakatime.git"
+    "https://github.com/junegunn/fzf.git"
+    "https://github.com/junegunn/fzf.vim.git"
 )
 
 for repo in "${PLUGINS[@]}"; do
@@ -291,6 +321,9 @@ if [ "$IS_ROOT" = true ] && [ "$TARGET_USER" != "root" ]; then
         "$TARGET_HOME/vimwiki" 2>/dev/null || true
 fi
 
+# Ensure helper scripts have execute permissions
+chmod +x "$SCRIPT_DIR/status.sh" "$SCRIPT_DIR/tests/run_tests.sh" 2>/dev/null || true
+
 # ----------------------------------------------------------------------------
 # 9. Summary Banner
 # ----------------------------------------------------------------------------
@@ -304,9 +337,10 @@ echo -e "${BOLD}${GREEN}======================================================${
 echo -e "  - ${BOLD}Timewarrior:${RESET}  $(command -v timew &>/dev/null && timew --version 2>&1 | head -n 1 || echo 'Installed (restart shell)')"
 echo -e "  - ${BOLD}Taskbook:${RESET}     $(command -v tb &>/dev/null && tb --version 2>&1 || ([ -f "$TARGET_HOME/.npm-global/bin/tb" ] && "$TARGET_HOME/.npm-global/bin/tb" --version 2>&1) || echo 'Installed')"
 echo -e "  - ${BOLD}ghq:${RESET}          $([ -f "$TARGET_HOME/.local/bin/ghq" ] && "$TARGET_HOME/.local/bin/ghq" --version 2>&1 | head -n 1 || echo 'Installed')"
+echo -e "  - ${BOLD}fzf:${RESET}          $(command -v fzf &>/dev/null && fzf --version 2>&1 | head -n 1 || ([ -f "$TARGET_HOME/.local/bin/fzf" ] && "$TARGET_HOME/.local/bin/fzf" --version 2>&1 | head -n 1) || echo 'Installed')"
 echo -e "  - ${BOLD}Vim Plugins:${RESET}  $(ls -1 "$VIM_PACK_DIR" 2>/dev/null | wc -l) plugins in ~/.vim/pack/plugins/start"
 echo -e "  - ${BOLD}Vimwiki:${RESET}      Configured with Markdown syntax (~/vimwiki/)"
-echo -e "  - ${BOLD}Shell Aliases:${RESET} Sourced via ~/.bash_aliases (tw, tb, wiki, today)"
+echo -e "  - ${BOLD}Shell Helpers:${RESET} env-status, test-env, today, wiki, tw, tb"
 echo ""
 echo -e "To reload your current shell immediately, run:"
 echo -e "  ${BOLD}source ~/.bashrc${RESET}"

@@ -55,6 +55,18 @@ nnoremap <C-l> <C-w>l
 nnoremap <leader>w :w<CR>
 nnoremap <leader>q :q<CR>
 
+" --- fzf (Fuzzy Finder) Mappings ---
+" Space + f : Fuzzy find files in project
+nnoremap <silent> <leader>f :Files<CR>
+" Space + b : Fuzzy find open buffers
+nnoremap <silent> <leader>b :Buffers<CR>
+" Space + g : Fuzzy find Git-tracked files
+nnoremap <silent> <leader>g :GFiles<CR>
+" Space + h : Fuzzy find file / command history
+nnoremap <silent> <leader>h :History<CR>
+" Space + l : Fuzzy find lines in current buffer
+nnoremap <silent> <leader>l :BLines<CR>
+
 " --- Vimwiki Configuration ---
 " Configured to use Markdown syntax and store wikis in ~/vimwiki
 let g:vimwiki_list = [{
