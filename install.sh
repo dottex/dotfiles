@@ -254,7 +254,7 @@ done
 # ----------------------------------------------------------------------------
 # 7. Dotfiles Linking & Shell Configuration
 # ----------------------------------------------------------------------------
-log_info "Configuring dotfiles (.vimrc, .bash_aliases, .bashrc)..."
+log_info "Configuring dotfiles (.vimrc, .bash_aliases, .tmux.conf, .bashrc)..."
 
 # Copy or symlink .vimrc
 if [ -f "$SCRIPT_DIR/.vimrc" ]; then
@@ -269,6 +269,14 @@ if [ -f "$SCRIPT_DIR/.bash_aliases" ]; then
     if [ ! -f "$TARGET_HOME/.bash_aliases" ] || ! cmp -s "$SCRIPT_DIR/.bash_aliases" "$TARGET_HOME/.bash_aliases"; then
         cp "$SCRIPT_DIR/.bash_aliases" "$TARGET_HOME/.bash_aliases"
         log_success "Copied .bash_aliases to $TARGET_HOME/.bash_aliases"
+    fi
+fi
+
+# Copy .tmux.conf
+if [ -f "$SCRIPT_DIR/.tmux.conf" ]; then
+    if [ ! -f "$TARGET_HOME/.tmux.conf" ] || ! cmp -s "$SCRIPT_DIR/.tmux.conf" "$TARGET_HOME/.tmux.conf"; then
+        cp "$SCRIPT_DIR/.tmux.conf" "$TARGET_HOME/.tmux.conf"
+        log_success "Copied .tmux.conf to $TARGET_HOME/.tmux.conf"
     fi
 fi
 
@@ -318,6 +326,7 @@ if [ "$IS_ROOT" = true ] && [ "$TARGET_USER" != "root" ]; then
         "$TARGET_HOME/.vim" \
         "$TARGET_HOME/.vimrc" \
         "$TARGET_HOME/.bash_aliases" \
+        "$TARGET_HOME/.tmux.conf" \
         "$TARGET_HOME/vimwiki" 2>/dev/null || true
 fi
 
@@ -341,6 +350,7 @@ echo -e "  - ${BOLD}fzf:${RESET}          $(command -v fzf &>/dev/null && fzf --
 echo -e "  - ${BOLD}Vim Plugins:${RESET}  $(ls -1 "$VIM_PACK_DIR" 2>/dev/null | wc -l) plugins in ~/.vim/pack/plugins/start"
 echo -e "  - ${BOLD}Vimwiki:${RESET}      Configured with Markdown syntax (~/vimwiki/)"
 echo -e "  - ${BOLD}Shell Helpers:${RESET} env-status, test-env, today, wiki, tw, tb"
+echo -e "  - ${BOLD}tmux:${RESET}         ~/.tmux.conf installed (run: tmux source ~/.tmux.conf)"
 echo ""
 echo -e "To reload your current shell immediately, run:"
 echo -e "  ${BOLD}source ~/.bashrc${RESET}"
